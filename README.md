@@ -6,9 +6,10 @@
 
 ## 설치와 첫 조회
 
-Python **3.11 이상**과 인터넷 연결이 필요하다. 받은 소스 디렉터리 이름이 `datagokr`인 경우 아래처럼 들어가 설치한다. 명령은 macOS/Linux의 Bash 기준이며, PyPI나 GitHub에 게시된 배포본을 전제하지 않는다.
+Python **3.11 이상**과 인터넷 연결이 필요하다. 명령은 macOS/Linux의 Bash 기준이다. 저장소는 https://github.com/twlaude/datagokr 이고, 소스 없이 바로 설치하려면 `pip install git+https://github.com/twlaude/datagokr` 를 쓰면 된다.
 
 ```bash
+git clone https://github.com/twlaude/datagokr
 cd datagokr
 python3 -m venv .venv
 source .venv/bin/activate
