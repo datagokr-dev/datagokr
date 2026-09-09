@@ -14,4 +14,4 @@ DATAGOKR_DOWNLOAD_INFO_URL = "https://www.data.go.kr/tcs/dss/selectFileDataDownl
 DATAGOKR_DOWNLOAD_URL = "https://www.data.go.kr/cmm/cmm/fileDownload.do"
 DATAGOKR_STD_COLUMNS_URL = "https://www.data.go.kr/download/columList.json"
 DATAGOKR_STD_DATA_URL = "https://www.data.go.kr/download/standard.json"
-DEFAULT_REMOTE_URL = "https://159-223-75-71.sslip.io/mcp"
+DEFAULT_REMOTE_URL = "https://datagokr.dev/mcp"

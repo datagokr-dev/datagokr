@@ -37,7 +37,7 @@ datagokr download 15012896 --out ./downloads
 | 설정 키 | 용도 | 기본값 |
 | --- | --- | --- |
 | `DATAGOKR_API_KEY` | 본인의 odcloud serviceKey, **디코딩 값** | 빈 값 |
-| `DATAGOKR_REMOTE_URL` | 원격 검색·메타·미리보기 MCP 주소 | `https://159-223-75-71.sslip.io/mcp` |
+| `DATAGOKR_REMOTE_URL` | 원격 검색·메타·미리보기 MCP 주소 | `https://datagokr.dev/mcp` |
 | `DATAGOKR_DOWNLOAD_DIR` | 다운로드 기본 폴더 | `~/datagokr` |
 | `DATAGOKR_SESSION_FILE` | 포털 로그인 세션 파일 | `~/.config/datagokr/session.json` |
 
@@ -45,7 +45,7 @@ datagokr download 15012896 --out ./downloads
 
 ```toml
 DATAGOKR_API_KEY = ""
-DATAGOKR_REMOTE_URL = "https://159-223-75-71.sslip.io/mcp"
+DATAGOKR_REMOTE_URL = "https://datagokr.dev/mcp"
 DATAGOKR_DOWNLOAD_DIR = "~/datagokr"
 DATAGOKR_SESSION_FILE = "~/.config/datagokr/session.json"
 ```
