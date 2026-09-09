@@ -149,17 +149,28 @@ datagokr get "$dataset_id" -n 5
 ### Claude Code
 
 ```bash
-claude mcp add datagokr -- datagokr-mcp
+claude mcp add datagokr-local -s user -- /absolute/path/to/.venv/bin/datagokr-mcp
+claude mcp add --transport http datagokr-public https://datagokr.dev/mcp -s user
+claude mcp list
 ```
 
-모든 프로젝트에 등록하려면 `claude mcp add --scope user datagokr -- datagokr-mcp`를 사용한다. `claude mcp list` 또는 대화창의 `/mcp`에서 확인한다. [Claude Code 공식 MCP 문서](https://code.claude.com/docs/en/mcp).
+로컬은 사용자 컴퓨터에서 실행되고 원격은 검색·조회용 공개 서버에 연결한다. 필요한 연결만 등록하면 된다. `-s user`는 모든 프로젝트에 적용되며, `claude mcp list` 또는 대화창의 `/mcp`에서 연결을 확인한다. 삭제는 `claude mcp remove datagokr-local -s user`와 `claude mcp remove datagokr-public -s user`다. [Claude Code 공식 MCP 문서](https://code.claude.com/docs/en/mcp).
 
 ### Codex CLI
 
-`~/.codex/config.toml`에 추가한다.
+CLI로 필요한 연결을 등록한다.
+
+```bash
+codex mcp add datagokr-local -- /absolute/path/to/.venv/bin/datagokr-mcp
+codex mcp add datagokr-public --url https://datagokr.dev/mcp
+codex mcp list
+codex exec --skip-git-repo-check "datagokr-public 서버의 search 툴로 '전국 주차장' 1건만 검색해서 제목만 답해"
+```
+
+`list`의 `enabled`는 등록 상태다. 실제 연결·호출 성공은 대화의 툴 응답으로 확인한다. 삭제는 `codex mcp remove datagokr-local`과 `codex mcp remove datagokr-public`이다. 직접 설정하려면 CLI 등록 대신 `~/.codex/config.toml`에 추가한다.
 
 ```toml
-[mcp_servers.datagokr]
+[mcp_servers.datagokr-local]
 command = "datagokr-mcp"
 startup_timeout_sec = 30
 tool_timeout_sec = 180
@@ -238,12 +249,34 @@ files = datagokr.download("15012896", out="./downloads")
 
 ## 보안과 데이터 전송
 
+### 원격 서버로 전송되는 것 / 안 되는 것
+
+| 작업 | 원격 MCP 서버로 전송되는 것 | 원격 MCP 서버로 전송되지 않는 것 |
+| --- | --- | --- |
+| `search`·`show`·`fields`·`record`·`download_url` | 질의·필드 조건·식별자·건수 등 조회 인자만 | API 키·로그인 쿠키·로컬 파일 |
+| `preview` (원격 `get_preview`) | 조회 인자 + 설정 시 API 키 헤더 `X-DataGoKr-Key` | 로그인 쿠키·로컬 파일 |
+| `get`·`fetch`·`apply`·`download` | `record`로 카탈로그 식별자 조회만 | 키·쿠키·신청 본문: 사용자 컴퓨터에서 포털/odcloud로 직접 전송; 파일은 로컬 저장 |
+
+`record`·`download_url`은 원격 툴이며 최상위 Python API나 CLI 명령은 아니다. 로그인 쿠키는 어떤 경우에도 원격 MCP 서버로 보내지 않는다. AI 클라이언트에 반환한 데이터의 처리는 해당 클라이언트의 정책을 따른다.
+
 - 검색어·필드 조건·데이터셋 id는 설정한 원격 MCP 서버로 전달된다. 서버는 검색·메타·원격 미리보기를 제공하며 원격 서버 자체는 활용신청이나 사용자 파일 저장을 하지 않는다.
 - **`preview`는 설정된 API 키를 `X-DataGoKr-Key` HTTP 헤더로 원격 서버에 보낸다.** 해당 연결의 초기화·툴 목록 요청에도 이 헤더가 포함된다. 표준데이터 미리보기여도 키가 설정돼 있으면 전송된다. 원격 서버로 키를 보내지 않으려면 `preview(..., api_key="")`, CLI `preview --api-key ''`를 쓰거나 로컬 `get`/`fetch`를 사용한다. MCP `preview`는 인자로 키를 끌 수 없으므로 서버 프로세스의 `DATAGOKR_API_KEY`를 빈 값으로 설정한다.
 - `get`/`fetch`의 API 키는 로컬에서 odcloud로 전달된다. 포털 로그인 쿠키는 사용자 세션 파일에 저장하고 포털 접속에 사용하며 원격 검색 MCP에는 보내지 않는다. 다운로드는 MCP 서버 프로세스가 실행되는 컴퓨터에 저장된다.
 - CLI/MCP는 키·쿠키를 출력하거나 오류 메시지에 포함하지 않도록 처리한다. 하지만 사용자가 직접 인쇄하거나 HTTP 디버그 로깅을 켜거나 명령줄 인자에 비밀값을 넣으면 노출될 수 있다. 키·쿠키를 AI 대화, 버그 보고, 커밋에 붙여 넣지 않는다.
 - 세션 파일은 `0600`으로 저장한다. `.env`·개인 설정 파일도 접근 권한을 제한하고 버전 관리에서 제외한다. 원격 주소를 변경하면 그 서버가 검색 입력과 `preview`의 키를 받으므로 신뢰하는 HTTPS 주소를 사용한다.
-- `get`은 자동 활용신청·파일 저장, `apply`는 신청 제출, `download`는 파일 저장을 수행한다. `get`/`download`는 같은 파일을 덮어쓸 수 있다. 조회만 원하면 `probe` 옵션을 사용한다.
+- `get`은 기본적으로 자동 활용신청을 하지 않으며 파일 저장으로 폴백할 수 있다. `get --apply`로 신청을 허용할 수 있고, `apply`는 신청 제출, `download`는 파일 저장을 수행한다. `get`/`download`는 같은 파일을 덮어쓸 수 있다. 조회만 원하면 `probe` 옵션을 사용한다.
+
+## 데이터 출처와 이용조건
+
+데이터 출처는 [공공데이터포털(data.go.kr)](https://www.data.go.kr/)과 각 제공기관이다. 데이터셋별 이용허락(공공누리 유형, 출처표시 등)은 검색 결과의 `page_url`에 표시된 조건을 따른다. 이 패키지와 원격 서버는 카탈로그 색인과 접근 안내를 제공하며, 미리보기·조회·다운로드로 받은 데이터의 별도 이용권을 부여하지 않는다. 패키지의 [MIT 라이선스](LICENSE)는 코드에 적용되고 데이터셋의 이용조건을 대체하지 않는다.
+
+## 레이트리밋
+
+공개 원격 서버는 **IP당 최근 60초 30회, UTC 날짜당 2,000회** HTTP 요청을 허용한다. 초기화·툴 목록 요청도 포함되며 `/health`는 제외된다. 전체 IP 합계 제한(최근 60초 120회·최근 24시간 10,000회)도 적용된다. HTTP 429를 받으면 `Retry-After`만큼 기다린다. 패키지는 이를 읽어 한 번 재시도한다. 자체 호스팅 서버의 한도는 운영 설정에 따라 달라질 수 있다.
+
+## 문제 신고
+
+오류·문서 수정·서비스 문의는 [GitHub Issues](https://github.com/twlaude/datagokr/issues)에 남긴다. 패키지 버전과 재현 명령, 비밀값을 제거한 오류를 함께 적고 API 키·로그인 쿠키·개인 설정 파일은 첨부하지 않는다.
 
 ## 검증과 문제 해결
 

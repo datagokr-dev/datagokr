@@ -9,6 +9,11 @@ description = "Korean public data search and local access tools"
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 authors = [{name = "twmoon"}]
 dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4", "openpyxl>=3.1"]
 

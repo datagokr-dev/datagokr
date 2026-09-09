@@ -1,0 +1,29 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+    env:
+      DATAGOKR_LIVE_TEST: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install package and development dependencies
+        shell: bash
+        run: python -m pip install -e '.[dev]' 2>&1 | sed 's/^/[TEST] /'
+      - name: Run offline tests
+        shell: bash
+        run: python -m pytest -q 2>&1 | sed 's/^/[TEST] /'
