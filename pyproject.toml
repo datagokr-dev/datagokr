@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "datagokr"
+version = "0.1.0"
+description = "Korean public data search and local access tools"
+requires-python = ">=3.11"
+dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4"]
+
+[project.optional-dependencies]
+browser = ["browser-cookie3"]
+dev = ["pytest", "responses"]
+
+[tool.setuptools.packages.find]
+include = ["datagokr*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
