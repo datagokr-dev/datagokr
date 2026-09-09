@@ -30,6 +30,14 @@ datagokr download 15012896 --out ./downloads
 
 응답의 `path`가 실제 저장 경로다. 기본 저장 위치는 `~/datagokr/<dataset_id>/`이고, `--out`을 주면 그 디렉터리에 저장한다. 같은 경로의 파일은 덮어쓴다.
 
+## AI 에이전트에게 한 줄로 설치시키기
+
+클로드 코드·코덱스·커서 등 어떤 에이전트든 아래 문장 하나를 그대로 던지면 클라이언트를 감지해 원격 서버를 등록하고 검색 1회로 검증까지 한다.
+
+```
+Fetch and execute the setup instructions from https://datagokr.dev/agent-setup/prompt.md
+```
+
 ## 설정
 
 우선순위는 **함수·CLI 인자 > 환경변수 > 현재 작업 디렉터리의 `.env` > `~/.config/datagokr/config.toml` > 기본값**이다. `None`은 하위 설정을 상속하고, 빈 API 키 문자열은 키 사용을 끈다. TOML과 `.env` 모두 아래 대문자 이름을 사용한다.
