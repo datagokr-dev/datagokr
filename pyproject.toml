@@ -11,6 +11,7 @@ dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4", "openpyxl>=3.1"]
 
 [project.scripts]
 datagokr = "datagokr.cli:main"
+datagokr-mcp = "datagokr.mcp:main"
 
 [project.optional-dependencies]
 browser = ["browser-cookie3"]
