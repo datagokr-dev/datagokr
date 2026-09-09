@@ -28,7 +28,7 @@ def test_argparse_routes_options_json_config_and_safe_failures(local_http, monke
          dict(dataset_id="15012896", n=2, api_key="fixture-api")),
         (["fetch", "15012896", "--version", "v2"],
          dict(dataset_id="15012896", version="v2", n=5, api_key=None)),
-        (["get", "15012896", "--no-apply", "--probe", "--download-dir", "./data", "--session-file", "./login.json"],
+        (["get", "15012896", "--probe", "--download-dir", "./data", "--session-file", "./login.json"],
          dict(dataset_id="15012896", n=5, no_apply=True, probe=True, api_key=None,
               download_dir="./data", session_file="./login.json")),
         (["apply", "1", "2", "--purpose", "통계 분석", "--session-file", "./login.json"],

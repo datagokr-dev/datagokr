@@ -36,7 +36,7 @@ def sample_url(template, sample):
 
 
 @safe_http_errors
-def get(dataset_id: str, n: int = 5, no_apply: bool = False, probe: bool = False, *,
+def get(dataset_id: str, n: int = 5, no_apply: bool = True, probe: bool = False, *,
         api_key=None, remote_url=None, download_dir=None, session_file=None) -> dict:
     if n < 1:
         raise ValueError('n must be positive')

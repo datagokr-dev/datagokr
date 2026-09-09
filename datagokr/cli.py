@@ -2,11 +2,14 @@
 
 import argparse
 import json
+from getpass import getpass
 import sys
 
 import datagokr
 from datagokr import config, session
 from datagokr.apply import PURPOSE_DEFAULT
+
+PROMPT_COOKIE = object()
 
 
 class _Parser(argparse.ArgumentParser):
@@ -55,7 +58,7 @@ def _parser():
         if name == "fetch":
             cmd.add_argument("--version", help="파일 버전 식별자")
         if name == "get":
-            cmd.add_argument("--no-apply", action="store_true", help="자동 활용신청 생략")
+            cmd.add_argument("--apply", action="store_true", help="401이면 본인 계정으로 활용신청까지 진행 (기본은 신청 안 함)")
         if name in ("get", "download"):
             cmd.add_argument("--probe", action="store_true", help="파일 저장·신청 없이 접근 확인")
             cmd.add_argument("--download-dir", help="기본 저장 폴더 (DATAGOKR_DOWNLOAD_DIR)")
@@ -72,7 +75,7 @@ def _parser():
             cmd.add_argument("--utf8", action="store_true", help="CSV의 UTF-8 변환본도 저장")
         if name == "login":
             login = cmd.add_mutually_exclusive_group()
-            login.add_argument("--cookie", help="로그인한 브라우저의 document.cookie 값")
+            login.add_argument("--cookie", nargs="?", const=PROMPT_COOKIE, help="로그인한 브라우저의 document.cookie 값. 값을 생략하면 숨김 입력")
             login.add_argument("--browser", choices=("chrome", "safari", "firefox"))
             cmd.epilog = session.login_instructions()
         if name == "config":
@@ -107,6 +110,10 @@ def _display(result, command, as_json):
 def main(argv=None):
     args = vars(_parser().parse_args(argv))
     command, as_json = args.pop("command"), args.pop("json", False)
+    if command == "get":
+        args["no_apply"] = not args.pop("apply", False)
+    if command == "login" and args.get("cookie") is PROMPT_COOKIE:
+        args["cookie"] = getpass("포털 쿠키 (입력 숨김): ")
     try:
         if command == "config":
             result = config.load(**args).as_dict()

@@ -24,7 +24,7 @@ def test_get_401_apply_retry_attachment_fallback_and_no_apply(local_http, monkey
     url = f'{DATAGOKR_DATA_URL}/1/v1/v'
     local_http.get(url, status=401)
     local_http.get(url, json={'data': [{'name': '서울'}]})
-    result = datagokr.get('1', api_key='fixture-user', session_file=tmp_path / 'login.json')
+    result = datagokr.get('1', api_key='fixture-user', no_apply=False, session_file=tmp_path / 'login.json')
     assert result['data'] == {'data': [{'name': '서울'}]}
     assert result['application'] == [dict(id='1', status='applied', portal_status='승인')]
     assert 'fixture-hidden' not in repr(result)
@@ -37,7 +37,7 @@ def test_get_401_apply_retry_attachment_fallback_and_no_apply(local_http, monkey
     local_http.get(DATAGOKR_DOWNLOAD_URL, body='name\n서울\n'.encode(),
                    headers={'Content-Disposition': 'attachment; filename="data.csv"'})
     application.reset_mock()
-    result = datagokr.get('1', api_key='fixture-user')
+    result = datagokr.get('1', api_key='fixture-user', no_apply=False)
     assert result['data']['rows'] == [['서울']] and '반영 대기' in result['message']
     assert sum(c.request.url.startswith(url) for c in local_http.calls) == 2
     assert result['download_hint'] == 'datagokr download 1'

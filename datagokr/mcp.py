@@ -82,11 +82,11 @@ def fetch(dataset_id: str, version: str | None = None, n: int = 5) -> dict:
 
 
 @mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": True})
-def get(dataset_id: str, n: int = 5, no_apply: bool = False, probe: bool = False) -> dict:
+def get(dataset_id: str, n: int = 5, no_apply: bool = True, probe: bool = False) -> dict:
     """접근방식에 따라 첫 행·링크·API 템플릿을 돌려줍니다. Get rows, links or API templates.
-    PORTAL_FILE은 401에서 본인 세션으로 활용신청 후 재시도하며 원문 파일 저장으로 폴백할 수 있습니다.
-    May apply with your saved login on 401, retry and fall back to saving a local file.
-    no_apply=True는 신청만 생략(파일 저장 가능). no_apply skips applications, but may still save files.
+    PORTAL_FILE 401은 기본적으로 신청 없이 원문 파일 저장으로 폴백합니다. 활용신청까지 하려면 사용자가
+    명시적으로 허락한 경우에만 no_apply=False 를 넘기세요 (본인 계정으로 신청이 나갑니다).
+    By default no application is submitted on 401; pass no_apply=False only with the user's explicit consent.
     probe=True는 신청·파일 저장 없이 확인. probe checks access without applying or saving files.
     반환 / Returns: access_kind with data, url, request_templates or files (local paths).
     """

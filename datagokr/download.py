@@ -181,7 +181,7 @@ def download(dataset_id: str, version: str | None = None, all_versions: bool = F
                 if not url: raise PortalDefect(EMPTY_ATTACHMENT)
                 files.append(dict(version=key, url=url, message=EMPTY_ATTACHMENT_LINK)); continue
             header = message_from_string('Content-Disposition: ' + response.headers['Content-Disposition'].encode('latin1').decode('utf-8'))
-            path = (Path(out).expanduser() if out else load(download_dir=download_dir).download_dir / dataset_id) / (key if all_versions else '') / Path(unquote(header.get_filename()).replace('\\', '/')).name
+            path = (Path(out).expanduser() if out else load(download_dir=download_dir).download_dir / dataset_id) / (Path(str(key)).name if all_versions else '') / Path(unquote(header.get_filename()).replace('\\', '/')).name
             path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(response.content)
             files.append(dict(version=key, path=str(path)))
             if utf8 and path.suffix.lower() == '.csv':

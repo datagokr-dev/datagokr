@@ -80,7 +80,7 @@ datagokr login --browser chrome
 # 같은 방식으로 --browser safari 또는 --browser firefox
 ```
 
-브라우저·운영체제의 쿠키 암호화나 권한 때문에 읽기가 실패할 수 있다. 직접 입력하려면 개발자도구 콘솔에서 `document.cookie`를 평가해 복사한다. 지원되는 CLI 형식은 `datagokr login --cookie "복사한 쿠키"`다. 실제 값을 명령줄에 넣으면 셸 기록과 프로세스 인자에 남을 수 있으므로, 직접 입력 시에는 아래 숨김 입력을 권장한다.
+브라우저·운영체제의 쿠키 암호화나 권한 때문에 읽기가 실패할 수 있다. 직접 입력하려면 개발자도구 콘솔에서 `document.cookie`를 평가해 복사한다. 값을 생략한 `datagokr login --cookie`는 숨김 입력으로 받는다(권장). `--cookie "값"`처럼 명령줄에 직접 넣으면 셸 기록과 프로세스 인자에 남는다.
 
 ```bash
 python - <<'PY'
@@ -133,7 +133,7 @@ datagokr get "$dataset_id" -n 5
 | `OPEN_API` | 본인 serviceKey로 호출할 요청 템플릿 또는 포털 상세 페이지 |
 | `PORTAL_FILE` | 키로 odcloud 조회 → 401이면 로그인 세션으로 신청 → 승인 확인 후 재조회 → 원문 미리보기·다운로드 폴백. 키가 없으면 바로 원문 경로 |
 
-`get --no-apply`는 자동 신청만 생략하며 파일은 저장할 수 있다. `get --probe`는 신청·파일 저장 없이 접근을 확인한다. `download --probe`도 저장하지 않는다. 포털 원문 미리보기는 CSV/TSV/TXT/XLSX를 지원하고, 지원하지 않는 형식이나 미리보기 실패는 원문 다운로드로 이어질 수 있다.
+`get`은 기본적으로 활용신청을 하지 않고 원문 파일 저장으로 폴백한다. 본인 계정으로 신청까지 하려면 `get --apply`를 명시한다(MCP·Python API는 `no_apply=False`). `get --probe`는 신청·파일 저장 없이 접근을 확인한다. `download --probe`도 저장하지 않는다. 포털 원문 미리보기는 CSV/TSV/TXT/XLSX를 지원하고, 지원하지 않는 형식이나 미리보기 실패는 원문 다운로드로 이어질 수 있다.
 
 포털 파일은 `download --version 버전키` 또는 `download --all-versions`로 버전을 선택한다(동시 사용 불가). `show`의 요청 예시를 참고한다. `--utf8`은 CSV 원문과 함께 UTF-8 변환본을 추가 저장한다. 표준데이터 CSV는 기본적으로 UTF-8 BOM 인코딩이다.
 
@@ -233,7 +233,7 @@ print(result["data"]["rows"])
 files = datagokr.download("15012896", out="./downloads")
 ```
 
-최상위 공개 함수는 `search`, `show`, `fields`, `preview`, `fetch`, `get`, `apply`, `download`다. `fields`에는 컬럼명 리스트, `apply`에는 id 리스트를 전달한다. 원격 주소는 `remote_url=`, 키를 사용하는 함수에는 `api_key=`로 설정을 덮어쓸 수 있다. `get`의 `no_apply=True`, `probe=True`와 `download`의 `probe=True`는 CLI와 같은 의미다. 반환값은 dict 또는 list이고 Python API는 동기 호출이다.
+최상위 공개 함수는 `search`, `show`, `fields`, `preview`, `fetch`, `get`, `apply`, `download`다. `fields`에는 컬럼명 리스트, `apply`에는 id 리스트를 전달한다. 원격 주소는 `remote_url=`, 키를 사용하는 함수에는 `api_key=`로 설정을 덮어쓸 수 있다. `get`의 `no_apply`(기본 `True`, 신청 안 함)·`probe=True`와 `download`의 `probe=True`는 CLI와 같은 의미다. 반환값은 dict 또는 list이고 Python API는 동기 호출이다.
 
 ## 보안과 데이터 전송
 
