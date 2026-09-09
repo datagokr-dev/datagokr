@@ -9,6 +9,9 @@ description = "Korean public data search and local access tools"
 requires-python = ">=3.11"
 dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4", "openpyxl>=3.1"]
 
+[project.scripts]
+datagokr = "datagokr.cli:main"
+
 [project.optional-dependencies]
 browser = ["browser-cookie3"]
 dev = ["pytest", "responses"]
