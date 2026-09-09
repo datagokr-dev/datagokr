@@ -6,10 +6,10 @@
 
 ## 설치와 첫 조회
 
-Python **3.11 이상**과 인터넷 연결이 필요하다. 명령은 macOS/Linux의 Bash 기준이다. 저장소는 https://github.com/twlaude/datagokr 이고, PyPI 이름은 `datagokr-mcp`(import 이름과 CLI는 `datagokr` 그대로)라 `pip install datagokr-mcp` 로 설치할 수 있고, 최신 소스는 `pip install git+https://github.com/twlaude/datagokr` 로 받는다.
+Python **3.11 이상**과 인터넷 연결이 필요하다. 명령은 macOS/Linux의 Bash 기준이다. 저장소는 https://github.com/datagokr-dev/datagokr 이고, PyPI 이름은 `datagokr-mcp`(import 이름과 CLI는 `datagokr` 그대로)라 `pip install datagokr-mcp` 로 설치할 수 있고, 최신 소스는 `pip install git+https://github.com/datagokr-dev/datagokr` 로 받는다.
 
 ```bash
-git clone https://github.com/twlaude/datagokr
+git clone https://github.com/datagokr-dev/datagokr
 cd datagokr
 python3 -m venv .venv
 source .venv/bin/activate
@@ -284,7 +284,7 @@ files = datagokr.download("15012896", out="./downloads")
 
 ## 문제 신고
 
-오류·문서 수정·서비스 문의는 [GitHub Issues](https://github.com/twlaude/datagokr/issues)에 남긴다. 패키지 버전과 재현 명령, 비밀값을 제거한 오류를 함께 적고 API 키·로그인 쿠키·개인 설정 파일은 첨부하지 않는다.
+오류·문서 수정·서비스 문의는 [GitHub Issues](https://github.com/datagokr-dev/datagokr/issues)에 남긴다. 패키지 버전과 재현 명령, 비밀값을 제거한 오류를 함께 적고 API 키·로그인 쿠키·개인 설정 파일은 첨부하지 않는다.
 
 ## 검증과 문제 해결
 

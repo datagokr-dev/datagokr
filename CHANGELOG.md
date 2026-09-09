@@ -23,4 +23,4 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Only remote `preview` forwards a configured API key in `X-DataGoKr-Key`;
   local access operations send keys directly to the portal/odcloud.
 
-[0.1.0]: https://github.com/twlaude/datagokr/releases/tag/v0.1.0
+[0.1.0]: https://github.com/datagokr-dev/datagokr/releases/tag/v0.1.0
