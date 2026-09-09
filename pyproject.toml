@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "datagokr"
+name = "datagokr-mcp"
 version = "0.1.0"
 description = "Korean public data search and local access tools"
 requires-python = ">=3.11"

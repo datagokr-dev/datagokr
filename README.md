@@ -6,7 +6,7 @@
 
 ## 설치와 첫 조회
 
-Python **3.11 이상**과 인터넷 연결이 필요하다. 명령은 macOS/Linux의 Bash 기준이다. 저장소는 https://github.com/twlaude/datagokr 이고, 소스 없이 바로 설치하려면 `pip install git+https://github.com/twlaude/datagokr` 를 쓰면 된다.
+Python **3.11 이상**과 인터넷 연결이 필요하다. 명령은 macOS/Linux의 Bash 기준이다. 저장소는 https://github.com/twlaude/datagokr 이고, PyPI 이름은 `datagokr-mcp`(import 이름과 CLI는 `datagokr` 그대로)라 `pip install datagokr-mcp` 로 설치할 수 있고, 최신 소스는 `pip install git+https://github.com/twlaude/datagokr` 로 받는다.
 
 ```bash
 git clone https://github.com/twlaude/datagokr
