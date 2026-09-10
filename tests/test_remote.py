@@ -68,7 +68,8 @@ def test_public_routes_and_preview_key_isolation(monkeypatch):
 
 def test_real_fastmcp_http_protocol_and_sync_call_in_running_loop(monkeypatch):
     calls = []
-    payload = [{"id": "15012896", "title": "전국주차장정보표준데이터"}]
+    payload = dict(summary={"total_groups": 1},
+                   results=[{"id": "15012896", "title": "전국주차장정보표준데이터"}])
     sleep = AsyncMock()
     monkeypatch.setattr(remote.asyncio, "sleep", sleep)
 
@@ -83,15 +84,13 @@ def test_real_fastmcp_http_protocol_and_sync_call_in_running_loop(monkeypatch):
                       "serverInfo": {"name": "fixture", "version": "1"}}
         elif method == "tools/list":
             result = {"tools": [{"name": "search", "inputSchema": {"type": "object"},
-                "outputSchema": {"type": "object", "x-fastmcp-wrap-result": True,
-                    "properties": {"result": {"type": "array", "items": {"type": "object"}}},
-                    "required": ["result"]}}]}
+                "outputSchema": {"type": "object"}}]}
         else:
             assert method == "tools/call"
             if sum(row["method"] == method for row in calls) == 1:
                 return httpx.Response(429, headers={"Retry-After": "4"})
             result = {"content": [{"type": "text", "text": json.dumps(payload)}],
-                      "structuredContent": {"result": payload}, "isError": False}
+                      "structuredContent": payload, "isError": False}
         return httpx.Response(200, json={"jsonrpc": "2.0", "id": message["id"], "result": result})
 
     transport_type = remote.StreamableHttpTransport

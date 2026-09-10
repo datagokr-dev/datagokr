@@ -63,7 +63,9 @@ def test_live_cli_and_stdio(tmp_path):
             assert names == {"search", "show", "fields", "preview", "fetch", "get",
                              "apply", "download", "login_status"}
             found = (await client.call_tool("search", {"query": "전국 주차장"})).data
-            assert isinstance(found, list) and found, "[TEST] live MCP search returned no datasets"
+            assert isinstance(found, dict) and found.get('summary') is not None
+            found = found['results']
+            assert found, "[TEST] live MCP search returned no datasets"
             assert all(row.get("id") and row.get("title") for row in found)
             print(f"[TEST] live MCP stdio tools={len(names)} search_results={len(found)} first_id={found[0]['id']}")
         assert transport._connect_task is None, "[TEST] stdio transport did not close"

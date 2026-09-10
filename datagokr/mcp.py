@@ -33,11 +33,21 @@ mcp = FastMCP("datagokr", mask_error_details=True, middleware=[_SafeErrors()],
 
 @mcp.tool(annotations={"readOnlyHint": True})
 def search(query: str, n: int = 10, dtype: str | None = None,
-           org: str | None = None, fields: list[str] | None = None) -> list[dict]:
+           org: str | None = None, fields: list[str] | None = None) -> dict:
     """주제로 공공데이터를 원격 검색합니다. Search the remote catalog by topic.
     query: 자연어 / topic; n: 1~20; dtype: FILE/API/STD; org: 기관명 / provider;
-    fields: 모두 필요한 컬럼 / required columns. 반환 / Returns: ranked id, title,
-    org_nm, access_kind, page_url, matched_fields. 예시 / Example: query='전국 주차장'.
+    fields: 모두 필요한 컬럼 / required columns. 반환 / Returns: {summary, results}.
+    summary는 n으로 자르기 전 후보의 주제·데이터셋 수와 유형·기관 분포·의도 힌트입니다.
+    Summary counts candidate groups/datasets before n, with type/provider distributions and intent hints.
+    results: id, title, org_nm, access_kind, page_url, matched_fields, desc_short(설명 앞 120자 / first
+    120 characters, no newlines), top_columns(등록순 최대 5개 / first 5 registered columns),
+    portal_updated(ISO date or null), org_level(national/local).
+    group_count는 대표 포함 후보 멤버 수, group_ids는 순위순 최대 60개 id입니다.
+    Group count includes the representative; group_ids contains up to 60 ranked member ids.
+    펼치기는 group_ids의 id를 show로 조회 / Inspect each group_ids member with show.
+    지역·API/파일 의도는 서버가 추출하며 dtype/org를 주면 더 정확합니다.
+    The server infers region and API/file intent; explicit dtype/org filters are more precise.
+    예시 / Example: query='전국 주차장'.
     """
     return datagokr.search(query, n=n, dtype=dtype, org=org, fields=fields)
 
@@ -53,7 +63,7 @@ def show(dataset_id: str) -> dict:
 
 @mcp.tool(annotations={"readOnlyHint": True})
 def fields(names: list[str], n: int = 10, dtype: str | None = None,
-           org: str | None = None) -> list[dict]:
+           org: str | None = None) -> dict:
     """지정 컬럼을 모두 가진 데이터셋을 찾습니다. Find datasets matching ALL named columns.
     names 예시 / Example: ['위도', '경도']; n: 1~20; dtype: FILE/API/STD; org: 기관명.
     반환은 search와 같은 메타데이터입니다. Returns ranked metadata as in search.

@@ -6,5 +6,5 @@ from datagokr.apply import apply
 from datagokr.download import download
 from datagokr.fetch import fetch
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = ["search", "show", "fields", "preview", "fetch", "get", "apply", "download"]

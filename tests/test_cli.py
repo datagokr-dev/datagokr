@@ -38,7 +38,7 @@ def test_argparse_routes_options_json_config_and_safe_failures(local_http, monke
               probe=False, download_dir=None)),
     ]
     for index, (arguments, expected) in enumerate(cases):
-        result = [row] if arguments[0] in ("search", "fields") else {"command": arguments[0]}
+        result = dict(summary={"total_groups": 1}, results=[row]) if arguments[0] in ("search", "fields") else {"command": arguments[0]}
         function = Mock(return_value=result)
         monkeypatch.setattr(datagokr, arguments[0], function)
         arguments = arguments + ["--remote-url", remote]
@@ -50,7 +50,7 @@ def test_argparse_routes_options_json_config_and_safe_failures(local_http, monke
     assert cli.main(["search", "주차장"]) == 0
     displayed = capsys.readouterr().out
     assert all(row[key] in displayed for key in ("id", "title", "org_nm", "page_url", "access_note"))
-    monkeypatch.setattr(datagokr, "search", Mock(return_value=[]))
+    monkeypatch.setattr(datagokr, "search", Mock(return_value=dict(summary={"total_groups": 0}, results=[])))
     assert cli.main(["fields", "위도", "경도", "--json"]) == 0
     capsys.readouterr()
     assert cli.main(["search", "없는 항목"]) == 0

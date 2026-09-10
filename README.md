@@ -245,13 +245,46 @@ Cascade의 MCP 설정에서 서버와 툴을 확인한다. [Windsurf 공식 MCP 
 ```python
 import datagokr
 
-datasets = datagokr.search("전국 주차장", n=5)
+search = datagokr.search("전국 주차장", n=5)
+print(search["summary"])
+datasets = search["results"]
 details = datagokr.show("15012896")
 result = datagokr.get("15012896", n=3, api_key="")
 print(result["data"]["columns"])
 print(result["data"]["rows"])
 files = datagokr.download("15012896", out="./downloads")
 ```
+
+`search`와 `fields`는 `{"summary": {...}, "results": [...]}` dict를 반환한다. 같은 주제의 지자체 자료는 대표 한 줄로 접힌다. 다음은 필드 의미를 보여 주는 축약 예시이며 건수·순위는 실제 검색에 따라 달라진다.
+
+```json
+{
+  "summary": {
+    "total_groups": 1,
+    "total_datasets": 2,
+    "by_dtype": {"FILE": 2},
+    "by_access_kind": {"PORTAL_FILE": 2},
+    "by_org_level": {"national": 0, "local": 2},
+    "region_hint": null,
+    "dtype_hint": null,
+    "note": "지자체별로 나뉜 주제를 접었습니다. group_ids의 id를 show로 펼쳐 보세요."
+  },
+  "results": [{
+    "id": "<대표 id>",
+    "title": "부산광역시 북구_재난문자 발송 현황",
+    "group_count": 2,
+    "group_ids": ["<대표 id>", "<다른 지자체 id>"],
+    "group_orgs": ["부산광역시 북구", "제주특별자치도"],
+    "group_kinds": {"PORTAL_FILE": 2},
+    "desc_short": "재난문자 발송 현황입니다.",
+    "top_columns": ["발송일시", "내용"],
+    "portal_updated": "2026-09-10",
+    "org_level": "local"
+  }]
+}
+```
+
+`summary`는 `n`개로 자르기 전 **검색 후보**의 개요이며 전체 카탈로그 건수가 아니다. `group_count`는 대표를 포함한 후보 멤버 수, `group_ids`는 순위순 최대 60개 id다. 각 id를 `datagokr.show(dataset_id)`에 넣어 펼쳐 본다. `desc_short`는 설명 앞 120자에서 개행을 뺀 값, `top_columns`는 등록순 컬럼명 최대 5개, `portal_updated`는 ISO 날짜 또는 `null`, `org_level`은 `national` 또는 `local`이다. 지역·API/파일 의도는 서버가 추출하지만 `dtype`·`org` 인자를 주면 더 정확하다.
 
 최상위 공개 함수는 `search`, `show`, `fields`, `preview`, `fetch`, `get`, `apply`, `download`다. `fields`에는 컬럼명 리스트, `apply`에는 id 리스트를 전달한다. 원격 주소는 `remote_url=`, 키를 사용하는 함수에는 `api_key=`로 설정을 덮어쓸 수 있다. `get`의 `no_apply`(기본 `True`, 신청 안 함)·`probe=True`와 `download`의 `probe=True`는 CLI와 같은 의미다. 반환값은 dict 또는 list이고 Python API는 동기 호출이다.
 

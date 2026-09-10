@@ -80,7 +80,8 @@ def call(tool, arguments=None, *, api_key=None, remote_url=None):
         return executor.submit(lambda: asyncio.run(_call(tool, arguments or {}, settings))).result()
 
 
-def search(query, n=10, dtype=None, org=None, fields=None, *, remote_url=None):
+def search(query, n=10, dtype=None, org=None, fields=None, *, remote_url=None) -> dict:
+    """Return {summary, results}, with one representative per candidate topic."""
     return call("search", dict(query=query, n=n, dtype=dtype, org=org, fields=list(fields or [])),
                 remote_url=remote_url)
 
@@ -93,7 +94,8 @@ def record(dataset_id, *, remote_url=None):
     return call("record", {"dataset_id": str(dataset_id)}, remote_url=remote_url)
 
 
-def fields(names, n=10, dtype=None, org=None, *, remote_url=None):
+def fields(names, n=10, dtype=None, org=None, *, remote_url=None) -> dict:
+    """Return {summary, results} for datasets matching every requested column."""
     return call("fields", dict(names=list(names), n=n, dtype=dtype, org=org), remote_url=remote_url)
 
 

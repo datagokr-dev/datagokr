@@ -95,6 +95,7 @@ def _display(result, command, as_json):
         for key, value in result.items():
             print(f"{key}={value}")
     elif command in ("search", "fields"):
+        result = result["results"] if isinstance(result, dict) else result
         for row in result:
             print(f"{row.get('rank', '')}. {row['id']} [{row.get('dtype', '')}] "
                   f"{row.get('title', '')} | {row.get('org_nm', '')}")

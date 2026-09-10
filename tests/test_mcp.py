@@ -13,6 +13,7 @@ from fastmcp.client.transports import StdioTransport
 def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
     calls = []
     rows = [dict(id="15012896", title="[TEST] 전국주차장정보표준데이터", rank=1)]
+    search_result = dict(summary={"total_groups": 1, "total_datasets": 2}, results=rows)
     remote_tools = ("search", "show", "fields", "get_preview", "record")
     key = "fixture-private-key"
     secret = "fixture-private-cookie"
@@ -41,7 +42,7 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
                 assert method == "tools/call", "[TEST] unexpected catalog method"
                 name, args = message["params"]["name"], message["params"]["arguments"]
                 if name in ("search", "fields"):
-                    payload = rows
+                    payload = search_result
                 elif name == "show":
                     payload = dict(id=args["dataset_id"], columns=[{"name": "위도"}])
                 elif name == "get_preview":
@@ -88,10 +89,10 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
                 assert tools["search"].inputSchema["required"] == ["query"]
                 assert tools["apply"].inputSchema["properties"]["ids"]["type"] == "array"
                 assert (await client.call_tool("search", dict(query="전국 주차장", n=3, dtype="FILE",
-                                                              org="서울", fields=["위도"]))).data == rows
+                                                              org="서울", fields=["위도"]))).data == search_result
                 if index == 0:
                     assert (await client.call_tool("show", {"dataset_id": "15012896"})).data["columns"] == [{"name": "위도"}]
-                    assert (await client.call_tool("fields", dict(names=["위도", "경도"], n=2))).data == rows
+                    assert (await client.call_tool("fields", dict(names=["위도", "경도"], n=2))).data == search_result
                     assert (await client.call_tool("preview", dict(dataset_id="15012896", n=2))).data["data"]["rows"] == [[37.5]]
                     assert (await client.call_tool("fetch", dict(dataset_id="api", n=2))).data["request_templates"] == [{"url": "https://api.invalid/"}]
                     assert (await client.call_tool("get", dict(dataset_id="link", no_apply=True, probe=True))).data["url"] == "https://provider.invalid/data"
