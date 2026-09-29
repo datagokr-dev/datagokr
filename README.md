@@ -1,5 +1,7 @@
 # datagokr
 
+[![PyPI](https://img.shields.io/pypi/v/datagokr-mcp?label=PyPI)](https://pypi.org/project/datagokr-mcp/) [![CI](https://github.com/datagokr-dev/datagokr/actions/workflows/ci.yml/badge.svg)](https://github.com/datagokr-dev/datagokr/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) [![MCP Registry](https://img.shields.io/badge/MCP%20Registry-dev.datagokr%2Fdatagokr-green)](https://registry.modelcontextprotocol.io/v0/servers?search=datagokr) [![Remote MCP](https://img.shields.io/badge/remote-datagokr.dev%2Fmcp-informational)](https://datagokr.dev)
+
 공공데이터포털의 데이터를 검색하고, **자기 키·자기 로그인·자기 디스크**로 조회·활용신청·다운로드하는 Python 패키지다. CLI, Python API, 로컬 MCP stdio 서버를 제공한다.
 
 검색과 메타데이터는 공개 원격 MCP 서버를 사용한다. `get`, `fetch`, `apply`, `download`는 메타데이터를 받은 뒤 사용자 컴퓨터에서 포털에 접속한다. `preview`는 원격 서버가 본문을 조회하므로, 키를 설정했다면 그 키도 원격 서버로 전송된다. 자세한 전송 범위는 아래 보안 안내를 확인하자.

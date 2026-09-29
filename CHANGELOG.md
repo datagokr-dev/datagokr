@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2026-09-29
+
+- README: 로컬 패키지가 왜 필요한지·사용자 컴퓨터에서 무엇이 실행되고 무엇이 오가는지 설명 절과 표 추가
+- README: PyPI·CI·라이선스·MCP 레지스트리 배지
+
 ## [0.1.0] - 2026-09-09
 
 ### Added
