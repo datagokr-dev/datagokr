@@ -61,7 +61,7 @@ def test_live_cli_and_stdio(tmp_path):
         async with Client(transport, timeout=180, init_timeout=30) as client:
             names = {tool.name for tool in await client.list_tools()}
             assert names == {"search", "show", "fields", "preview", "fetch", "get",
-                             "apply", "download", "login_status"}
+                             "apply", "download", "login_status", "login"}
             found = (await client.call_tool("search", {"query": "전국 주차장"})).data
             assert isinstance(found, dict) and found.get('summary') is not None
             found = found['results']

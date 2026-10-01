@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.4",
+  "name": "datagokr",
+  "display_name": "공공데이터 검색·활용",
+  "version": "0.1.2",
+  "description": "공공데이터를 검색하고 본인 컴퓨터에서 조회·활용신청·다운로드합니다.",
+  "author": {"name": "twmoon"},
+  "homepage": "https://github.com/datagokr-dev/datagokr",
+  "license": "MIT",
+  "icon": "icon.png",
+  "server": {
+    "type": "uv",
+    "entry_point": "server.py",
+    "mcp_config": {
+      "command": "uv",
+      "args": ["run", "--directory", "${__dirname}", "server.py"],
+      "env": {
+        "DATAGOKR_API_KEY": "${user_config.api_key}",
+        "DATAGOKR_PORTAL_ID": "${user_config.portal_id}",
+        "DATAGOKR_PORTAL_PASSWORD": "${user_config.portal_password}"
+      }
+    }
+  },
+  "compatibility": {"platforms": ["darwin", "win32", "linux"]},
+  "tools": [
+    {"name": "search", "description": "주제로 데이터 검색"},
+    {"name": "show", "description": "구조·사용법 확인"},
+    {"name": "fields", "description": "컬럼으로 검색"},
+    {"name": "preview", "description": "키 없이 원격 미리보기"},
+    {"name": "fetch", "description": "본인 키로 로컬 조회"},
+    {"name": "get", "description": "접근방식에 맞게 데이터 조회"},
+    {"name": "apply", "description": "본인 계정으로 활용신청"},
+    {"name": "download", "description": "원문을 컴퓨터에 저장"},
+    {"name": "login", "description": "보안문자 입력으로 포털 로그인"},
+    {"name": "login_status", "description": "로그인 상태 확인"}
+  ],
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "공공데이터 API 키 (선택)",
+      "description": "본인의 디코딩 serviceKey. 검색에는 필요 없습니다.",
+      "required": false,
+      "sensitive": true,
+      "default": ""
+    },
+    "portal_id": {
+      "type": "string",
+      "title": "공공데이터포털 아이디 (선택)",
+      "description": "활용신청할 때 필요합니다. 공식 포털에만 전송합니다.",
+      "required": false,
+      "sensitive": true,
+      "default": ""
+    },
+    "portal_password": {
+      "type": "string",
+      "title": "공공데이터포털 비밀번호 (선택)",
+      "description": "로그인할 때 필요합니다. 대화에 비밀번호를 쓰지 마세요.",
+      "required": false,
+      "sensitive": true,
+      "default": ""
+    }
+  }
+}

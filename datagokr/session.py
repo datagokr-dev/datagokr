@@ -3,9 +3,10 @@
 import json
 import logging
 import os
+import sys
 import time
 from functools import wraps
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -58,25 +59,67 @@ def _session(cookie):
 
 
 def session_ok(session):
-    response = session.get(DATAGOKR_ACCOUNT_URL, timeout=30)
+    response = portal_request(session, 'GET', DATAGOKR_ACCOUNT_URL)
     return (response.status_code == 200 and urlparse(response.url).hostname == 'www.data.go.kr'
             and '로그아웃' in response.text)
+
+
+def portal_url(url):
+    parsed = urlparse(url)
+    if (parsed.scheme != 'https' or parsed.hostname not in ('www.data.go.kr', 'auth.data.go.kr')
+            or parsed.port not in (None, 443) or parsed.username or parsed.password):
+        raise ValueError('공식 포털 HTTPS 주소만 허용합니다.')
+    return url
+
+
+def portal_request(client, method, url, **kwargs):
+    for _ in range(6):
+        response = client.request(method, portal_url(url), allow_redirects=False, timeout=30, **kwargs)
+        if not response.is_redirect:
+            response.raise_for_status()
+            return response
+        if method != 'GET':
+            raise ValueError('로그인 제출 리다이렉트는 허용하지 않습니다.')
+        url = urljoin(url, response.headers['Location'])
+    raise ValueError('포털 리다이렉트가 너무 많습니다.')
+
+
+def _windows_store():
+    from keyring.backends.Windows import WinVaultKeyring
+    return WinVaultKeyring()
+
+
+def save_cookie(cookie, *, session_file=None):
+    path = load(session_file=session_file).session_file
+    payload = dict(cookie=cookie, saved_at=time.time())
+    if sys.platform == 'win32':
+        _windows_store().set_password('datagokr', str(path.resolve()), cookie)
+        payload = dict(keyring=True, saved_at=time.time())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, 'w', encoding='utf-8') as target:
+        if sys.platform != 'win32':
+            os.fchmod(target.fileno(), 0o600)
+        json.dump(payload, target)
 
 
 def ensure_session(*, session_file=None):
     path = load(session_file=session_file).session_file
     try:
-        cached = json.loads(path.read_text(encoding='utf-8')).get('cookie', '')
+        payload = json.loads(path.read_text(encoding='utf-8'))
+        cached = (_windows_store().get_password('datagokr', str(path.resolve()))
+                  if payload.get('keyring') else payload.get('cookie', ''))
         if not isinstance(cached, str) or not cached:
             raise ValueError()
-    except (OSError, ValueError, AttributeError):
+    except Exception:
         raise ConnectionError(LOGIN_REQUIRED) from None
     session = _session(cached)
     try:
         if session_ok(session):
-            path.chmod(0o600)
+            if sys.platform != 'win32':
+                path.chmod(0o600)
             return session
-    except (requests.RequestException, ConnectionError, OSError):
+    except (requests.RequestException, ConnectionError, OSError, ValueError):
         pass
     session.close()
     raise ConnectionError(LOGIN_REQUIRED) from None
@@ -116,14 +159,8 @@ def login(cookie=None, browser=None, *, session_file=None):
         with _session(cookie) as session:
             if not session_ok(session):
                 raise ConnectionError(LOGIN_REQUIRED)
-        path = load(session_file=session_file).session_file
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # Permissions are restrictive before the first credential byte is written.
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-        with os.fdopen(fd, 'w', encoding='utf-8') as target:
-            os.fchmod(target.fileno(), 0o600)
-            json.dump(dict(cookie=cookie, saved_at=time.time()), target)
-    except (OSError, ValueError, requests.RequestException):
+        save_cookie(cookie, session_file=session_file)
+    except Exception:
         raise ConnectionError('로그인 확인 또는 세션 저장 실패. datagokr login 으로 다시 시도하세요.') from None
     return dict(authenticated=True, message='포털 로그인 확인 및 세션 저장 완료')
 

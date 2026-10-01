@@ -56,11 +56,11 @@ def test_public_routes_and_preview_key_isolation(monkeypatch):
         assert invoke() == payload
         client.call_tool.assert_awaited_with(tool, arguments)
         transport = factory.call_args.args[0]
-        assert transport.headers == ({"X-DataGoKr-Key": "fixture-environment"} if tool == "get_preview" else {})
+        assert transport.headers == {}
         assert "fixture-environment" not in repr(client.call_tool.call_args)
     datagokr.preview("1", api_key="fixture-argument", remote_url="https://override.invalid/mcp")
     transport = factory.call_args.args[0]
-    assert transport.headers == {"X-DataGoKr-Key": "fixture-argument"}
+    assert transport.headers == {}
     assert transport.url == "https://override.invalid/mcp"
     datagokr.preview("1", api_key="")
     assert factory.call_args.args[0].headers == {}

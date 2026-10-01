@@ -13,7 +13,7 @@
 
 그래서 포털 전체(약 10.9만 데이터셋)를 **컬럼까지 미리 색인하고 임베딩**해 두었다. 찾는 데이터를 말로 설명하면 제목이 정확히 일치하지 않아도 의미가 가까운 데이터셋을 찾고, 비슷한 것은 주제별로 묶어 보여 주며, 컬럼과 첫 행까지 바로 확인할 수 있다. 예를 들어 "위도·경도 있는 병원 자료", "아파트 실거래가 API", "전국 주차장 표준데이터"처럼 물으면 된다.
 
-검색과 메타데이터는 공개 원격 MCP 서버를 사용한다. `get`, `fetch`, `apply`, `download`는 메타데이터를 받은 뒤 사용자 컴퓨터에서 포털에 접속한다. `preview`는 원격 서버가 본문을 조회하므로, 키를 설정했다면 그 키도 원격 서버로 전송된다. 자세한 전송 범위는 아래 보안 안내를 확인하자.
+검색과 메타데이터는 공개 원격 MCP 서버를 사용한다. `get`, `fetch`, `apply`, `download`는 메타데이터를 받은 뒤 사용자 컴퓨터에서 포털에 접속한다. `preview`는 키 없이 원격 서버에서 미리보기를 조회한다. 본인 키가 필요한 조회는 로컬 `fetch`나 `get`을 사용한다.
 
 ## 왜 로컬 패키지가 필요한가, 내 컴퓨터에서 무엇이 실행되나
 
@@ -22,8 +22,8 @@
 | 하는 일 | 어디서 실행되나 | 무엇이 오가나 |
 | --- | --- | --- |
 | 검색·구조·컬럼 검색 | 원격 MCP 서버 | 검색어·데이터셋 id만 전송. 키·쿠키 없음 |
-| 미리보기 `preview` | 원격 MCP 서버 | 조회 인자 + (키를 설정한 경우만) 키 헤더. 끌 수 있음 |
-| 다운로드·활용신청·본인 키 조회 | **사용자 컴퓨터** | data.go.kr/odcloud에 직접 접속. 키·쿠키는 컴퓨터 밖으로 안 나감 |
+| 미리보기 `preview` | 원격 MCP 서버 | 조회 인자만 전송. 키·쿠키 없음 |
+| 다운로드·활용신청·본인 키 조회 | **사용자 컴퓨터** | data.go.kr/odcloud에 직접 접속. 키·쿠키는 공식 서비스에만 전송 |
 | 받은 파일 | **사용자 컴퓨터** | `~/datagokr/<dataset_id>/`에 저장 |
 
 이 프로그램은 백그라운드에 상주하지 않고 CLI를 칠 때나 AI 클라이언트가 MCP로 부를 때만 실행된다. 코드는 MIT 오픈소스라 전부 읽어볼 수 있고, 전송 범위의 정확한 목록은 아래 [보안과 데이터 전송](#보안과-데이터-전송)에 있다.
@@ -125,7 +125,9 @@ print(result["message"])
 PY
 ```
 
-계정 페이지에서 로그인을 확인한 뒤 세션을 저장하며, 파일 권한은 `0600`이다. `document.cookie`로는 HttpOnly 쿠키를 읽을 수 없으므로 복사한 값으로 검증이 실패하면 브라우저 쿠키 읽기 경로를 사용하거나 다시 로그인한다. 만료된 세션은 `datagokr login`으로 갱신한다. MCP에서는 `login_status` 툴로 상태를 확인할 수 있다.
+계정 페이지에서 로그인을 확인한 뒤 세션을 저장한다. macOS/Linux에서는 세션 파일 권한이 `0600`이고, Windows에서는 쿠키를 Credential Manager에 저장하고 파일에는 저장 위치 표시만 남긴다. `document.cookie`로는 HttpOnly 쿠키를 읽을 수 없으므로 복사한 값으로 검증이 실패하면 브라우저 쿠키 읽기 경로를 사용하거나 다시 로그인한다. 만료된 세션은 CLI의 `datagokr login` 또는 MCP의 `login`으로 갱신한다. MCP에서는 `login_status` 툴로 상태를 확인할 수 있다.
+
+로컬 MCP에서는 터미널 없이 `login` 도구로 로그인할 수 있다. 확장 설정의 포털 아이디·비밀번호를 입력하거나 로컬 서버에 `DATAGOKR_PORTAL_ID`, `DATAGOKR_PORTAL_PASSWORD` 환경변수를 전달한다. 이 두 설정은 환경변수 전용이며 `config` 출력이나 개인 TOML에 넣지 않는다. 대화에 “공공데이터포털에 로그인해줘”라고 말하고, 표시된 보안문자를 직접 읽어 입력한다. 도구는 같은 `challenge_id`와 `captcha_answer`로 5분 안에 완료하며, 다시 시작하면 이전 이미지는 무효다. 아이디·비밀번호는 도구 인자에 넣지 않는다. 실제 포털 로그인과 Windows/macOS 앱 실행은 아직 실기 검증 전이다.
 
 키가 필요한 포털 파일을 검색하고 `show`의 상세 페이지·요청 예시를 확인한 다음, 검색 결과의 id로 신청·조회한다. 아래 셸 변수에는 실제 검색 결과의 id를 입력한다.
 
@@ -148,7 +150,7 @@ datagokr get "$dataset_id" -n 5
 | `search` | `datagokr search "전국 주차장" -n 5 --json` | 주제 검색; `--dtype FILE\|API\|STD`, `--org`, 반복 가능한 `--field` |
 | `show` | `datagokr show 15012896` | 컬럼·접근 방식·요청 예시 조회 |
 | `fields` | `datagokr fields 위도 경도 -n 5` | 지정 컬럼을 모두 가진 데이터 검색 |
-| `preview` | `datagokr preview 15012896 -n 3` | 원격 서버에서 미리보기; 설정 키 전송 |
+| `preview` | `datagokr preview 15012896 -n 3` | 키 없이 원격 서버에서 미리보기 |
 | `fetch` | `datagokr fetch "$dataset_id" -n 5` | 본인 로컬 키로 odcloud 조회; `--version` 선택 가능 |
 | `get` | `datagokr get 15012896 -n 3` | 접근 방식별 조회·신청·원문 폴백 |
 | `apply` | `datagokr apply "$dataset_id"` | 본인 세션으로 활용신청 제출 |
@@ -172,7 +174,7 @@ datagokr get "$dataset_id" -n 5
 
 ## AI 클라이언트에 MCP 등록
 
-로컬 `datagokr-mcp`가 stdio로 실행되며 툴 9개를 제공한다: `search`, `show`, `fields`, `preview`, `fetch`, `get`, `apply`, `download`, `login_status`. 툴 설명은 한국어·영어를 함께 제공한다. `login`과 `config`는 CLI에서 실행하고, MCP에는 키·쿠키 입력 인자가 없다.
+로컬 `datagokr-mcp`가 stdio로 실행되며 툴 10개를 제공한다: `search`, `show`, `fields`, `preview`, `fetch`, `get`, `apply`, `download`, `login`, `login_status`. 툴 설명은 한국어·영어를 함께 제공한다. CLI의 `login`과 `config`도 유지하며, MCP에는 키·아이디·비밀번호·쿠키 입력 인자가 없다.
 
 먼저 설치한 가상환경에서 `command -v datagokr-mcp`로 실행파일의 **절대경로**를 확인한다. 아래 예시는 `datagokr-mcp`가 AI 클라이언트의 PATH에도 있을 때 동작한다. 찾지 못하면 각 `command` 또는 CLI의 마지막 실행파일을 방금 확인한 절대경로로 바꾼다. JSON/TOML의 명령 경로에 `~` 확장을 기대하지 말자. `command`를 가상환경 Python 절대경로로 하고 `args`를 `["-m", "datagokr.mcp"]`로 지정해도 된다.
 
@@ -323,16 +325,17 @@ files = datagokr.download("15012896", out="./downloads")
 | 작업 | 원격 MCP 서버로 전송되는 것 | 원격 MCP 서버로 전송되지 않는 것 |
 | --- | --- | --- |
 | `search`·`show`·`fields`·`record`·`download_url` | 질의·필드 조건·식별자·건수 등 조회 인자만 | API 키·로그인 쿠키·로컬 파일 |
-| `preview` (원격 `get_preview`) | 조회 인자 + 설정 시 API 키 헤더 `X-DataGoKr-Key` | 로그인 쿠키·로컬 파일 |
+| `preview` (원격 `get_preview`) | 조회 인자만 | API 키·로그인 정보·쿠키·로컬 파일 |
 | `get`·`fetch`·`apply`·`download` | `record`로 카탈로그 식별자 조회만 | 키·쿠키·신청 본문: 사용자 컴퓨터에서 포털/odcloud로 직접 전송; 파일은 로컬 저장 |
 
 `record`·`download_url`은 원격 툴이며 최상위 Python API나 CLI 명령은 아니다. 로그인 쿠키는 어떤 경우에도 원격 MCP 서버로 보내지 않는다. AI 클라이언트에 반환한 데이터의 처리는 해당 클라이언트의 정책을 따른다.
 
 - 검색어·필드 조건·데이터셋 id는 설정한 원격 MCP 서버로 전달된다. 서버는 검색·메타·원격 미리보기를 제공하며 원격 서버 자체는 활용신청이나 사용자 파일 저장을 하지 않는다.
-- **`preview`는 설정된 API 키를 `X-DataGoKr-Key` HTTP 헤더로 원격 서버에 보낸다.** 해당 연결의 초기화·툴 목록 요청에도 이 헤더가 포함된다. 표준데이터 미리보기여도 키가 설정돼 있으면 전송된다. 원격 서버로 키를 보내지 않으려면 `preview(..., api_key="")`, CLI `preview --api-key ''`를 쓰거나 로컬 `get`/`fetch`를 사용한다. MCP `preview`는 인자로 키를 끌 수 없으므로 서버 프로세스의 `DATAGOKR_API_KEY`를 빈 값으로 설정한다.
+- `preview`는 초기화·툴 목록 요청을 포함해 API 키를 보내지 않는다. 기존 `api_key=`·`--api-key` 인자는 호환성을 위해 받지만 미리보기에서는 사용하지 않는다. 키가 필요한 조회는 로컬 `get`/`fetch`를 사용한다.
 - `get`/`fetch`의 API 키는 로컬에서 odcloud로 전달된다. 포털 로그인 쿠키는 사용자 세션 파일에 저장하고 포털 접속에 사용하며 원격 검색 MCP에는 보내지 않는다. 다운로드는 MCP 서버 프로세스가 실행되는 컴퓨터에 저장된다.
 - CLI/MCP는 키·쿠키를 출력하거나 오류 메시지에 포함하지 않도록 처리한다. 하지만 사용자가 직접 인쇄하거나 HTTP 디버그 로깅을 켜거나 명령줄 인자에 비밀값을 넣으면 노출될 수 있다. 키·쿠키를 AI 대화, 버그 보고, 커밋에 붙여 넣지 않는다.
-- 세션 파일은 `0600`으로 저장한다. `.env`·개인 설정 파일도 접근 권한을 제한하고 버전 관리에서 제외한다. 원격 주소를 변경하면 그 서버가 검색 입력과 `preview`의 키를 받으므로 신뢰하는 HTTPS 주소를 사용한다.
+- 포털 로그인 아이디·비밀번호는 이 컴퓨터에서 `auth.data.go.kr`로 직접 전송한다. 로그인 이동은 `auth.data.go.kr`·`www.data.go.kr`의 HTTPS만 허용하고, 포털 계정 페이지와 저장할 쿠키의 재사용을 확인한 뒤 성공을 반환한다. 보안문자 이미지는 AI 클라이언트에 표시하므로 사용자가 직접 읽어 입력한다.
+- 세션은 macOS/Linux에서 `0600` 파일, Windows에서 Credential Manager에 저장한다. `.env`·개인 설정 파일도 접근 권한을 제한하고 버전 관리에서 제외한다. 원격 주소를 변경하면 그 서버가 검색 입력을 받으므로 신뢰하는 HTTPS 주소를 사용한다.
 - `get`은 기본적으로 자동 활용신청을 하지 않으며 파일 저장으로 폴백할 수 있다. `get --apply`로 신청을 허용할 수 있고, `apply`는 신청 제출, `download`는 파일 저장을 수행한다. `get`/`download`는 같은 파일을 덮어쓸 수 있다. 조회만 원하면 `probe` 옵션을 사용한다.
 
 ## 데이터 출처와 이용조건

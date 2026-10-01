@@ -1,0 +1,15 @@
+.git/
+.github/
+.venv/
+.pytest_cache/
+**/__pycache__/
+**/*.pyc
+**/*.egg-info/
+tests/
+dist/
+build/
+*.mcpb
+.env
+.env.*
+**/session.json
+**/config.toml

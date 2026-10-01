@@ -44,11 +44,9 @@ def _retry_after(response):
 
 
 async def _call(tool, arguments, settings):
-    headers = ({"X-DataGoKr-Key": settings.api_key}
-               if tool == "get_preview" and settings.api_key else {})
     for attempt in range(2):
         try:
-            transport = StreamableHttpTransport(settings.remote_url, headers=headers)
+            transport = StreamableHttpTransport(settings.remote_url, headers={})
             async with Client(transport, timeout=90) as client:
                 result = await client.call_tool(tool, arguments)
             if result.data is not None:
@@ -66,7 +64,7 @@ async def _call(tool, arguments, settings):
 
 
 def call(tool, arguments=None, *, api_key=None, remote_url=None):
-    """Call a public tool; only get_preview receives the configured API key.
+    """Call a public tool without forwarding user credentials.
 
     A worker thread keeps this synchronous API usable from notebooks and
     other callers that already have an asyncio event loop.

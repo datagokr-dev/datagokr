@@ -1,13 +1,16 @@
 """Local stdio tools for remote discovery and user-owned portal access."""
 
+import json
 import logging
 
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.server.middleware import Middleware
+from fastmcp.tools import ToolResult
+from fastmcp.utilities.types import Image
 
 import datagokr
-from datagokr import session
+from datagokr import portal_login, session
 from datagokr.apply import PURPOSE_DEFAULT
 
 
@@ -18,9 +21,9 @@ class _SafeErrors(Middleware):
         except Exception:
             # Validation failures can contain supplied values as well as HTTP URLs.
             raise ToolError(
-                "요청 실패. 인자·설정·네트워크를 확인하세요. 로그인은 datagokr login 을 사용하세요. "
+                "요청 실패. 인자·설정·네트워크를 확인하세요. login 도구 또는 datagokr login 을 사용하세요. "
                 "Request failed; check arguments, configuration and connectivity. "
-                "For portal login, run datagokr login."
+                "For portal login, use the login tool or run datagokr login."
             ) from None
 
 
@@ -28,6 +31,7 @@ mcp = FastMCP("datagokr", mask_error_details=True, middleware=[_SafeErrors()],
     instructions="공공데이터 검색 → show → preview 또는 get. 설정은 DATAGOKR_* 환경변수나 설정 파일. "
     "Search Korean public datasets, inspect with show, then preview or get. "
     "Configure credentials locally via DATAGOKR_* settings; never put keys or cookies in tool arguments. "
+    "For portal access use login, show its CAPTCHA to the user and submit only their answer. "
     "get may apply for access and save files; download saves files on this computer.")
 
 
@@ -75,8 +79,8 @@ def fields(names: list[str], n: int = 10, dtype: str | None = None,
 def preview(dataset_id: str, n: int = 5) -> dict:
     """원격 서버에서 첫 행·접근 안내를 조회합니다. Preview up to 20 rows remotely.
     반환 / Returns: access_kind, data.columns/rows, total or access instructions.
-    설정된 본인 키는 원격 서버의 X-DataGoKr-Key 헤더로 전송됩니다. The configured API key
-    is sent to the remote server in X-DataGoKr-Key. 신청·저장 없음 / No application or file saving.
+    키는 전송하지 않습니다. 키가 필요한 조회는 fetch/get을 사용하세요. No credentials are sent;
+    use local fetch/get for authenticated rows. 신청·저장 없음 / No application or file saving.
     """
     return datagokr.preview(dataset_id, n=n)
 
@@ -106,7 +110,7 @@ def get(dataset_id: str, n: int = 5, no_apply: bool = True, probe: bool = False)
 @mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": False})
 def apply(ids: list[str], purpose: str = PURPOSE_DEFAULT) -> list[dict]:
     """본인의 저장된 포털 세션으로 활용신청을 제출합니다. Submit access applications with saved login.
-    ids: 1~50개 데이터셋 id; purpose: 활용 목적 / intended use. 로그인: datagokr login.
+    ids: 1~50개 데이터셋 id; purpose: 활용 목적 / intended use. 로그인: login 도구 또는 datagokr login.
     반환 / Returns: id, status, portal_status, page_url; manual means login is required.
     쿠키는 포털에만 전송됩니다. Cookies are sent only to the portal.
     """
@@ -129,10 +133,29 @@ def download(dataset_id: str, version: str | None = None, all_versions: bool = F
 @mcp.tool(annotations={"readOnlyHint": True})
 def login_status() -> dict:
     """저장된 포털 세션의 유효성을 확인합니다. Check whether the saved portal login is valid.
-    반환 / Returns: authenticated, message. 세션이 없거나 만료되면 datagokr login 안내.
-    Missing or expired sessions require datagokr login. Keys and cookies are never returned.
+    반환 / Returns: authenticated, message. 세션이 없거나 만료되면 login 도구로 로그인하세요.
+    Use login for missing or expired sessions. Keys and cookies are never returned.
     """
-    return session.login_status()
+    result = session.login_status()
+    if not result['authenticated']:
+        result['message'] = 'login 도구 또는 datagokr login 으로 포털에 로그인하세요.'
+    return result
+
+
+@mcp.tool(annotations={"readOnlyHint": False, "destructiveHint": False})
+def login(challenge_id: str | None = None, captcha_answer: str | None = None) -> ToolResult:
+    """대화에서 보안문자를 입력해 포털에 로그인합니다. Log in locally with a user-read CAPTCHA.
+    먼저 인자 없이 호출하고 이미지를 사용자에게 보여주세요. 사용자가 직접 읽은 글자만
+    captcha_answer에 넣고 같은 challenge_id로 다시 호출하세요. Show the image to the user;
+    submit their answer with its challenge_id within 5 minutes. Retry/refresh without arguments.
+    아이디·비밀번호는 확장 설정의 로컬 환경변수에만 둡니다. Never pass credentials as arguments.
+    성공 시 세션 저장; 활용신청은 별도입니다. Saves a session; does not apply for access.
+    """
+    result, image = portal_login.login(challenge_id, captcha_answer)
+    content = [json.dumps(result, ensure_ascii=False)]
+    if image is not None:
+        content.append(Image(data=image, format='png'))
+    return ToolResult(content=content, structured_content=result)
 
 
 def main():

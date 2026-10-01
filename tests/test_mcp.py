@@ -68,10 +68,14 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
     worker.start()
     env = dict(DATAGOKR_REMOTE_URL=f"http://127.0.0.1:{catalog.server_port}/mcp",
                DATAGOKR_API_KEY=key, DATAGOKR_SESSION_FILE=str(tmp_path / "missing-session.json"),
+               DATAGOKR_PORTAL_ID="", DATAGOKR_PORTAL_PASSWORD="",
                DATAGOKR_DOWNLOAD_DIR=str(tmp_path / "downloads"))
     commands = [(str(Path(sys.executable).with_name("datagokr-mcp")), []),
-                (sys.executable, ["-m", "datagokr.mcp"])]
-    expected = {"search", "show", "fields", "preview", "fetch", "get", "apply", "download", "login_status"}
+                (sys.executable, ["-m", "datagokr.mcp"]),
+                (sys.executable, [str(Path(__file__).resolve().parents[1] / "server.py")])]
+    expected = {"search", "show", "fields", "preview", "fetch", "get", "apply", "download", "login_status", "login"}
+    manifest = json.loads((Path(__file__).resolve().parents[1] / "manifest.json").read_text())
+    assert {tool["name"] for tool in manifest["tools"]} == expected
 
     async def scenario():
         for index, (command, arguments) in enumerate(commands):
@@ -83,8 +87,8 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
                 assert set(tools) == expected
                 for name, tool in tools.items():
                     assert re.search("[가-힣]", tool.description) and re.search("[A-Za-z]{3}", tool.description)
-                    assert not {"api_key", "cookie", "remote_url"} & tool.inputSchema["properties"].keys()
-                    assert tool.annotations.readOnlyHint == (name not in {"apply", "get", "download"})
+                    assert not {"api_key", "cookie", "remote_url", "username", "password"} & tool.inputSchema["properties"].keys()
+                    assert tool.annotations.readOnlyHint == (name not in {"apply", "get", "download", "login"})
                 assert tools["get"].annotations.destructiveHint and tools["download"].annotations.destructiveHint
                 assert tools["search"].inputSchema["required"] == ["query"]
                 assert tools["apply"].inputSchema["properties"]["ids"]["type"] == "array"
@@ -101,6 +105,8 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
                     assert application[0]["status"] == "manual" and "datagokr login" in application[0]["reason"]
                     status = (await client.call_tool("login_status")).data
                     assert status["authenticated"] is False and "datagokr login" in status["message"]
+                    result = (await client.call_tool("login")).data
+                    assert not result["authenticated"] and "확장 설정" in result["message"]
                     for args in ({"query": [secret]}, {"query": "[TEST] remote failure"}):
                         result = await client.call_tool("search", args, raise_on_error=False)
                         rendered = result.content[0].text
@@ -128,9 +134,8 @@ def test_stdio_entrypoints_tools_and_mock_remote(tmp_path):
         connections[-1].append((message, {name.lower(): value for name, value in headers.items()}))
     for connection in connections:
         tool = next(message["params"]["name"] for message, _ in connection if message["method"] == "tools/call")
-        # Preview credentials also accompany that connection's MCP handshake.
         for message, headers in connection:
-            assert headers.get("x-datagokr-key") == (key if tool == "get_preview" else None)
+            assert "x-datagokr-key" not in headers
             assert "cookie" not in headers
             assert key not in json.dumps(message) and secret not in json.dumps(message)
     assert not (tmp_path / "downloads").exists()

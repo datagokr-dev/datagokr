@@ -15,7 +15,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 authors = [{name = "twmoon"}]
-dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4", "openpyxl>=3.1"]
+dependencies = ["requests>=2.31", "fastmcp>=3.4.7,<4", "openpyxl>=3.1",
+                "keyring>=25; sys_platform == 'win32'"]
 
 [project.urls]
 Homepage = "https://github.com/datagokr-dev/datagokr"
