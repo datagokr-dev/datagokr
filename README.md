@@ -178,6 +178,10 @@ datagokr get "$dataset_id" -n 5
 
 각 설정은 기존 파일의 다른 항목을 유지하며 병합한다. 키는 개인 `~/.config/datagokr/config.toml`에 두면 아래 예시에 비밀값을 넣지 않아도 된다. 등록 후 클라이언트에서 MCP 연결을 새로고침하거나 재시작한다.
 
+### Claude·ChatGPT 앱 (데스크탑·웹)
+
+원격 서버만 커넥터로 붙인다. 설정 → 커넥터 → 추가 → 사용자 지정 커넥터에서 이름은 아무거나, URL은 `https://datagokr.dev/mcp`(끝의 `/mcp`까지)를 넣고 연결한다. 고급 설정의 OAuth 클라이언트 ID·시크릿은 비워 둔다. 연결 과정의 승인은 로그인 화면 없이 자동으로 끝난다. ChatGPT 앱(데스크탑·웹)은 설정 → 통합 → 플러그인 → 추가 → MCP 앱 만들기에서 같은 URL을 넣고 인증은 OAuth로 둔다(메뉴 이름은 버전·요금제에 따라 다를 수 있다). 커넥터 화면으로는 본인 키 헤더를 넣을 수 없어 키가 필요한 미리보기는 안 되고, 키 없이 되는 검색·구조 확인·표준데이터 미리보기는 된다. 로컬 패키지는 클로드 데스크탑 앱의 `claude_desktop_config.json`에 `"datagokr-local": {"command": "/absolute/path/to/.venv/bin/datagokr-mcp"}`로 따로 등록한다.
+
 ### Claude Code
 
 ```bash
