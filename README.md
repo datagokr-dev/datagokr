@@ -205,7 +205,7 @@ datagokr get "$dataset_id" -n 5
 
 1. [Releases](https://github.com/datagokr-dev/datagokr/releases/latest)에서 **datagokr.mcpb**를 받는다. [확장 파일 바로 받기](https://github.com/datagokr-dev/datagokr/releases/latest/download/datagokr.mcpb).
 2. 받은 파일을 **더블클릭**하고 Claude 데스크탑에서 설치한다. Python과 필요한 패키지는 앱이 준비한다.
-3. 설정 창에 본인의 **API 키·포털 아이디·비밀번호**를 입력한다. 모두 선택 사항이라 검색부터 하려면 비워 두어도 된다. API 키에는 디코딩 serviceKey를 넣는다.
+3. 설정 창에 본인의 **API 키·포털 아이디·비밀번호**를 입력한다. 모두 선택 사항이라 검색부터 하려면 비워 두어도 된다. API 키는 data.go.kr에 로그인 → 마이페이지 첫 화면의 "개인 API 인증키" 칸에서 **인증키 복사(Decoding)** 를 눌러 복사한 값이다(메뉴: 마이페이지 → 데이터 활용 → Open API → 인증키 발급현황).
 4. 새 대화에서 “전국 주차장 데이터를 검색해줘”라고 말한다. 포털 로그인이 필요하면 “공공데이터포털에 로그인해줘”라고 말하고, 표시된 보안문자를 직접 읽어 입력한다. 비밀번호는 대화에 쓰지 않는다.
 5. 활용신청·다운로드는 필요한 데이터셋을 확인한 뒤 대화로 요청한다. 받은 파일은 이 컴퓨터의 `~/datagokr/<dataset_id>/`에 저장한다.
 

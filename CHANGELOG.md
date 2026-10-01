@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] - 2026-10-01
+
+- Extension settings explain where to copy the data.go.kr API key (My Page → 개인 API 인증키 → 인증키 복사(Decoding)).
+
 ## [0.1.4] - 2026-10-01
 
 - Portal login opens the CAPTCHA image in the system viewer, since Claude Desktop folds tool output.
@@ -39,6 +43,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Only remote `preview` forwards a configured API key in `X-DataGoKr-Key`;
   local access operations send keys directly to the portal/odcloud.
 
+[0.1.5]: https://github.com/datagokr-dev/datagokr/releases/tag/v0.1.5
 [0.1.4]: https://github.com/datagokr-dev/datagokr/releases/tag/v0.1.4
 [0.1.3]: https://github.com/datagokr-dev/datagokr/releases/tag/v0.1.3
 [0.1.0]: https://github.com/datagokr-dev/datagokr/releases/tag/v0.1.0

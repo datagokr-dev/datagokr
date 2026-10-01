@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "datagokr",
   "display_name": "공공데이터 검색·활용",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "공공데이터를 검색하고 본인 컴퓨터에서 조회·활용신청·다운로드합니다.",
   "author": {"name": "twmoon"},
   "homepage": "https://github.com/datagokr-dev/datagokr",
@@ -38,7 +38,7 @@
     "api_key": {
       "type": "string",
       "title": "공공데이터 API 키 (선택)",
-      "description": "본인의 디코딩 serviceKey. 검색에는 필요 없습니다.",
+      "description": "검색만 할 거면 비워 두세요. data.go.kr 로그인 → 마이페이지 → 개인 API 인증키 칸의 '인증키 복사(Decoding)' 값을 붙여 넣습니다.",
       "required": false,
       "sensitive": true,
       "default": ""
