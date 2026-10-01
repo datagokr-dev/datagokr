@@ -4,6 +4,8 @@
 
 공공데이터포털의 데이터를 검색하고, **자기 키·자기 로그인·자기 디스크**로 조회·활용신청·다운로드하는 Python 패키지다. CLI, Python API, 로컬 MCP stdio 서버를 제공한다.
 
+Claude 데스크탑을 쓴다면 [확장 파일을 받아 더블클릭](#claude-데스크탑-windowsmac)하는 것부터 시작하면 된다. 터미널에서 설치 명령을 입력할 필요가 없다.
+
 ## 왜 만들었나
 
 공공데이터포털(data.go.kr)에서 직접 찾으면 두 가지가 막힌다.
@@ -182,7 +184,21 @@ datagokr get "$dataset_id" -n 5
 
 ### Claude·ChatGPT 앱 (데스크탑·웹)
 
-원격 서버만 커넥터로 붙인다. 설정 → 커넥터 → 추가 → 사용자 지정 커넥터에서 이름은 아무거나, URL은 `https://datagokr.dev/mcp`(끝의 `/mcp`까지)를 넣고 연결한다. 고급 설정의 OAuth 클라이언트 ID·시크릿은 비워 둔다. 연결 과정의 승인은 로그인 화면 없이 자동으로 끝난다. ChatGPT 앱(데스크탑·웹)은 설정 → 통합 → 플러그인 → 추가 → MCP 앱 만들기에서 같은 URL을 넣고 인증은 OAuth로 둔다(메뉴 이름은 버전·요금제에 따라 다를 수 있다). 커넥터 화면으로는 본인 키 헤더를 넣을 수 없어 키가 필요한 미리보기는 안 되고, 키 없이 되는 검색·구조 확인·표준데이터 미리보기는 된다. 로컬 패키지는 클로드 데스크탑 앱의 `claude_desktop_config.json`에 `"datagokr-local": {"command": "/absolute/path/to/.venv/bin/datagokr-mcp"}`로 따로 등록한다.
+원격 서버만 커넥터로 붙인다. 설정 → 커넥터 → 추가 → 사용자 지정 커넥터에서 이름은 아무거나, URL은 `https://datagokr.dev/mcp`(끝의 `/mcp`까지)를 넣고 연결한다. 고급 설정의 OAuth 클라이언트 ID·시크릿은 비워 둔다. 연결 과정의 승인은 로그인 화면 없이 자동으로 끝난다. ChatGPT 앱(데스크탑·웹)은 설정 → 통합 → 플러그인 → 추가 → MCP 앱 만들기에서 같은 URL을 넣고 인증은 OAuth로 둔다(메뉴 이름은 버전·요금제에 따라 다를 수 있다). 커넥터 화면으로는 본인 키 헤더를 넣을 수 없어 키가 필요한 미리보기는 안 되고, 키 없이 되는 검색·구조 확인·표준데이터 미리보기는 된다.
+
+### Claude 데스크탑 (Windows·Mac)
+
+파일 하나로 이 컴퓨터에 검색·조회·활용신청·다운로드 도구를 설치한다. 최신 Claude 데스크탑 앱과 인터넷 연결이 필요하다.
+
+1. [Releases](https://github.com/datagokr-dev/datagokr/releases/latest)에서 **datagokr.mcpb**를 받는다. [확장 파일 바로 받기](https://github.com/datagokr-dev/datagokr/releases/latest/download/datagokr.mcpb).
+2. 받은 파일을 **더블클릭**하고 Claude 데스크탑에서 설치한다. Python과 필요한 패키지는 앱이 준비한다.
+3. 설정 창에 본인의 **API 키·포털 아이디·비밀번호**를 입력한다. 모두 선택 사항이라 검색부터 하려면 비워 두어도 된다. API 키에는 디코딩 serviceKey를 넣는다.
+4. 새 대화에서 “전국 주차장 데이터를 검색해줘”라고 말한다. 포털 로그인이 필요하면 “공공데이터포털에 로그인해줘”라고 말하고, 표시된 보안문자를 직접 읽어 입력한다. 비밀번호는 대화에 쓰지 않는다.
+5. 활용신청·다운로드는 필요한 데이터셋을 확인한 뒤 대화로 요청한다. 받은 파일은 이 컴퓨터의 `~/datagokr/<dataset_id>/`에 저장한다.
+
+API 키·로그인 정보는 사용자 컴퓨터에서 공식 서비스로 직접 전송한다. Linux VPS에서 번들 기동과 도구 목록을 확인했으며, Windows/macOS 앱 설치와 실제 포털 로그인은 실기 검증 전이다.
+
+기존 수동 등록도 가능하다. 설치한 실행파일을 `claude_desktop_config.json`의 `mcpServers`에 `"datagokr-local": {"command": "/absolute/path/to/.venv/bin/datagokr-mcp"}`로 추가한다. 확장으로 설치했다면 같은 로컬 서버를 중복 등록할 필요가 없다.
 
 ### Claude Code
 

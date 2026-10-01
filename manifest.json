@@ -2,7 +2,7 @@
   "manifest_version": "0.4",
   "name": "datagokr",
   "display_name": "공공데이터 검색·활용",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "공공데이터를 검색하고 본인 컴퓨터에서 조회·활용신청·다운로드합니다.",
   "author": {"name": "twmoon"},
   "homepage": "https://github.com/datagokr-dev/datagokr",
