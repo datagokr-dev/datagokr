@@ -4,12 +4,15 @@ import atexit
 import base64
 import os
 import secrets
+import subprocess
+import sys
 import time
 from html.parser import HTMLParser
 from threading import Lock
 from urllib.parse import urljoin
 
 from datagokr import session
+from datagokr.config import load
 from datagokr.constants import DATAGOKR_AUTH_URL, DATAGOKR_LOGIN_URL
 
 _pending = None
@@ -39,8 +42,27 @@ class _LoginForm(HTMLParser):
             self.in_form = False
 
 
+def _captcha_path():
+    return load().session_file.parent / 'captcha.png'
+
+
+def _show(png):
+    # Desktop apps fold tool output, so also pop the image up in the system viewer.
+    path = _captcha_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(png)
+    try:
+        if sys.platform == 'win32':
+            os.startfile(path)
+        elif sys.platform == 'darwin':
+            subprocess.Popen(['open', str(path)])
+    except OSError:
+        pass
+
+
 def _discard():
     global _pending
+    _captcha_path().unlink(missing_ok=True)
     if _pending:
         _pending['client'].close()
         _pending = None
@@ -71,11 +93,12 @@ def _begin():
     image = session.portal_request(client, 'GET', session.portal_url(urljoin(page.url, form.image)))
     if not image.content.startswith(b'\x89PNG\r\n\x1a\n') or len(image.content) > 256_000:
         raise ValueError('보안문자 이미지 오류')
+    _show(image.content)
     challenge = secrets.token_urlsafe(24)
     _pending.update(challenge=challenge, expires=time.monotonic() + CHALLENGE_TTL,
                     form=form, username=username, password=password)
     return dict(authenticated=False, challenge_id=challenge, expires_in=CHALLENGE_TTL,
-                message='이미지를 사용자에게 보여주고 직접 읽은 글자를 받으세요. '
+                message='보안문자 그림이 사용자 화면에 따로 열렸습니다. 사용자가 직접 읽은 글자를 받으세요. '
                 '같은 challenge_id와 captcha_answer로 login을 다시 호출하세요. '
                 'Ask the user to read the CAPTCHA; do not solve it for them.'), image.content
 

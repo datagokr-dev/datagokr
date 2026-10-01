@@ -215,3 +215,13 @@ def test_mcp_image_and_manifest_configuration_contract(portal):
             assert all(c.type == 'text' for c in completed.content)
 
     asyncio.run(scenario())
+
+
+def test_captcha_image_is_saved_for_the_viewer_and_removed_after(portal):
+    http, path = portal
+    result, image = start(http)
+    shown = path.parent / 'captcha.png'
+    assert shown.read_bytes() == image == PNG
+    finish(http)
+    assert login.login(result['challenge_id'], 'fixture')[0]['authenticated']
+    assert not shown.exists()
