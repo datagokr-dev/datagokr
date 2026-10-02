@@ -4,7 +4,7 @@
 
 **공공데이터, AI한테 말로 찾고 신청까지 맡기세요.**
 
-공공데이터포털(data.go.kr)의 데이터 10.9만 건을 AI와 대화하며 찾고, 내 계정으로 활용신청부터 다운로드까지 처리해 주는 AI 확장 기능(MCP)이에요. 검색은 클로드·ChatGPT 어디서나 되고, 활용신청·다운로드는 클로드 데스크탑처럼 내 컴퓨터에서 도는 앱에서 돼요. 소개 페이지: https://datagokr.dev
+공공데이터포털(data.go.kr)의 데이터 10.9만 건을 AI와 대화하며 찾고, 내 계정으로 활용신청부터 다운로드까지 처리해 주는 AI 확장 기능(MCP)이에요. 검색은 클로드·ChatGPT 어디서나 되고, 활용신청·다운로드는 클로드 데스크탑처럼 내 컴퓨터에서 도는 앱에서 돼요. 소개 페이지: https://datagokr.dev · 업데이트 기록: [CHANGELOG](CHANGELOG.md)
 
 > **처음엔 내 AI 앱에 설치(연결)부터 해야 써요.** 클로드 데스크탑이면 [설치 파일(datagokr.mcpb)](https://github.com/datagokr-dev/datagokr/releases/latest/download/datagokr.mcpb)을 받아 더블클릭하면 끝이에요. 다른 앱은 [사용 환경별 설치·사용 방법](#사용-환경별-설치사용-방법)을 보세요.
 
