@@ -11,6 +11,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## 원격 서버
 
+### 2026-10-07
+
+- `search` 툴 설명을 짧게 다듬었습니다(1,024자 이내). 검색 요령은 서버 안내문에 그대로 있습니다.
+
 ### 2026-10-01
 
 - claude.ai·ChatGPT 앱에서 커스텀 커넥터로 연결할 수 있습니다(익명 연결, 로그인·개인정보 불필요).
